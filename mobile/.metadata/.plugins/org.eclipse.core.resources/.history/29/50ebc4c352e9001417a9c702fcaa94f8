@@ -1,0 +1,7 @@
+package bit.sleemjm1.lastfm;
+
+import android.widget.ArrayAdapter;
+
+public class ArtistAdapter extends ArrayAdapter<T> {
+
+}

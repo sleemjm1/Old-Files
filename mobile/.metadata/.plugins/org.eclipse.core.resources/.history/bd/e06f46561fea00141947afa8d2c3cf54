@@ -1,0 +1,172 @@
+package bit.sleemjm1.lastfm;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
+
+
+public class MainActivity extends Activity 
+{
+	//class properties
+	ListView lstChart;
+	String JSONInput;
+	ArrayList<Artist> artistData;
+	Button btnFillList;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) 
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        lstChart = (ListView) findViewById(R.id.lstChart);
+        btnFillList = (Button) findViewById(R.id.btnFillList);
+        artistData = new ArrayList<Artist>();
+        
+        ArtistAdapter artistAdapter = new ArtistAdapter(this, R.layout.custom_layout, artistData);
+        lstChart.setAdapter(artistAdapter);
+        
+        btnFillList.setOnClickListener(new OnClickListener()
+        {
+        	@Override
+        	public void onClick(View v)
+        	{
+        		AsyncAPIShowTop20 APIThread = new AsyncAPIShowTop20();
+        		APIThread.execute();
+        	}
+        });
+    }
+    
+    public class ArtistAdapter extends ArrayAdapter<Artist>
+    {    
+	    public ArtistAdapter(Context context, int resource, ArrayList<Artist> artistData) 
+	    {
+				super(context, resource);
+				// TODO Auto-generated constructor stub
+		}
+	    @Override
+	    public View getView(int position, View convertView, ViewGroup container)
+	    {
+	    	LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+	    	
+	    	View customView = inflater.inflate(R.layout.custom_layout, container, false);
+	    	
+	    	TextView artistTextView = (TextView) customView.findViewById(R.id.textView1); //textview1 = artist data
+	    	TextView listenerTextView = (TextView) customView.findViewById(R.id.textView2); //for artist data
+	    	
+	    	Artist currentItem = getItem(position);
+	    	
+	    	artistTextView.setText(currentItem.artistName.toString());
+	    	listenerTextView.setText(currentItem.artistListeners.toString());
+			return customView;
+	    	
+	    }
+    }
+
+	class AsyncAPIShowTop20 extends AsyncTask<Void,Void,String>
+    {
+
+		@Override
+		protected String doInBackground(Void... arg0) 
+    	{
+    	String JSONString = null;
+    	//declare here so it is not local to the try block
+    	try
+    	{
+	    	//hard coded
+	    	String urlString = "http://ws.audioscrobbler.com/2.0/?method=chart.getTopArtists&api_key=58384a2141a4b9737eacb9d0989b8a8c&limit=20&format=json";
+	    	
+	    	//convert urlstring to urlobject
+	    	URL URLObject = new URL(urlString);
+	    	
+	    	//create httpURLConnection object via openConnection command of URLObject
+	    	HttpURLConnection connection = (HttpURLConnection) URLObject.openConnection();
+	    	
+	    	//send the URL
+	    	connection.connect();
+	    	
+	    	//if it doesn't return 200, you don't have data
+	    	int responseCode = connection.getResponseCode();
+	    	
+	    	//get an InputStream from the HttpURLConnection object and set up a bufferedreader
+	    	InputStream inputStream = connection.getInputStream();
+	    	InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+	    	BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+	    	
+	    	//read the input may be only one line
+	    	String responseString;
+	    	StringBuilder stringBuilder = new StringBuilder();
+	    	while((responseString = bufferedReader.readLine()) !=null)
+	    	{
+	    		stringBuilder = stringBuilder.append(responseString);
+	    	}
+	    	
+	    	//get the string from the stringBuilder. JSONString ready for parsing!
+	    	JSONString = stringBuilder.toString();
+    	}
+    	catch(Exception e) {e.printStackTrace();}
+    	
+    	return JSONString;
+		}
+    	protected void onPostExecute(String fetchedString)
+    	{
+    		//get what we need here...
+    		try 
+    		{
+				JSONObject artistObject = new JSONObject(fetchedString);
+				JSONObject artists = artistObject.getJSONObject("artists");
+				
+				JSONArray artistArray = artists.getJSONArray("artist");
+				
+				int numArtists = artistArray.length();
+				
+				for (int i = 0; i<numArtists; i++)
+				{
+					JSONObject currentArtistObject = artistArray.getJSONObject(i);
+					
+					String currentArtistName = currentArtistObject.getString("name");
+					String currentArtistListeners = currentArtistObject.getString("listeners");
+					Artist currentArtist = new Artist(currentArtistName, currentArtistListeners);
+					artistData.add(currentArtist);					
+				}
+				//ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, R.layout.custom_layout, R.id.textView1, artistData);
+				//ArrayAdapter<String> listenerAdapter = new ArrayAdapter<String>(MainActivity.this, R.layout.custom_layout, R.id.textView2, listenData);
+				//lstChart.setAdapter(adapter);
+				//lstChart.setAdapter(listenerAdapter);
+				ArtistAdapter artistAdapter = new ArtistAdapter(MainActivity.this, R.layout.custom_layout, artistData);
+				lstChart.setAdapter(artistAdapter);
+			} 
+    		catch (JSONException e) 
+    		{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+    		
+    	}
+    }
+
+
+   
+}

@@ -1,0 +1,47 @@
+package bit.sleemjm1.germanquiz;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
+
+public class Results extends Activity 
+{
+	Button ButtonClick;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) 
+	{
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_results);
+		//fetching the data sent from Questions.java
+		
+		Intent launchIntent = getIntent();
+		String answers = launchIntent.getStringExtra("score");
+		
+		//using the intent data
+		TextView txtResults = (TextView) findViewById(R.id.txtResult);
+		txtResults.setText("You scored " + answers + " out of a possible 11");
+		
+		ButtonClick = (Button) findViewById(R.id.btnRestart);
+		
+		ButtonClick.setOnClickListener(new ClickHandler());
+	}
+	
+	public class ClickHandler implements OnClickListener
+	{
+
+		@Override
+		public void onClick(View v) 
+		{
+			Intent changeActivityIntent = new Intent(Results.this, Questions.class);
+			startActivity(changeActivityIntent);			
+		}
+		
+	}
+
+	
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename field &apos;btnTwo&apos; in &apos;bit.sleemjm1.activitylaunching.R.id&apos; to &apos;btnB&apos;&#x0D;&#x0A;- Original project: &apos;ActivityLaunching&apos;&#x0D;&#x0A;- Original element: &apos;bit.sleemjm1.activitylaunching.R.id.btnTwo&apos;&#x0D;&#x0A;- Renamed element: &apos;bit.sleemjm1.activitylaunching.R.id.btnB&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" delegate="false" deprecate="true" description="Rename field &apos;btnTwo&apos;" flags="589830" getter="false" id="org.eclipse.jdt.ui.rename.field" input="/gen&lt;bit.sleemjm1.activitylaunching{R.java[R[id^btnTwo" name="btnB" references="true" setter="false" stamp="1425353699642" textual="false" version="1.0"/>
+</session>

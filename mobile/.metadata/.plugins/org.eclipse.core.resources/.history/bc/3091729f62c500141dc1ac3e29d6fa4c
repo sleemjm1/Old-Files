@@ -1,0 +1,177 @@
+package bit.sleemjm1.germanquiz;
+
+//next thing to work on is answer checking
+import java.util.Random;
+
+import android.R.integer;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class Questions extends Activity 
+{
+	Button ButtonClick;
+	Button ButtonNext;
+	TextView progress;
+	ImageView SelectedImage;
+	RadioGroup answerGroup;
+	int currentQuestionIndex = 0;
+	int correctAnswer = 0;
+	String QuestionImages[] = {"das_auto", "das_haus", "das_schaf", "der_apfel", "der_baum", "der_stuhl",
+			"die_ente", "die_hexe", "die_kuh", "die_milch", "die_strasse"};
+	String Answers[] = { "Das", "Das", "Das", "Der", "Der", "Der", "Die", "Die", "Die", "Die", "Die"};
+	String progressString;
+	int resourceIDS[];
+	Random rand;
+	Boolean checked;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) 
+	{
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_questions);
+		
+		shuffle();
+		
+		ButtonClick = (Button) findViewById(R.id.btnSubmit);	
+	    ButtonClick.setOnClickListener(new ClickHandler());
+	    
+	    ButtonNext = (Button) findViewById(R.id.btnNext);
+	    ButtonNext.setOnClickListener(new NextHandler());
+	    
+	    answerGroup = (RadioGroup) findViewById(R.id.radioGroupAns);
+	    
+	    progress = (TextView) findViewById(R.id.txtProgress);
+	    progressString =  "1/11";
+	    progress.setText(progressString);
+	
+	    Resources resources = getResources();
+	    
+	    resourceIDS = new int [QuestionImages.length];
+	    
+	    rand = new Random();
+	    
+	    checked = false;
+	    		
+		//SelectedImage.setImageResource(R.drawable.das_auto);
+		
+		for(int i = 0; i < QuestionImages.length; i++) 
+		{
+	        //String imageName = "der_baum";
+			String imageName = QuestionImages[i];
+	       
+	        // The Resource object will get the ID from R for you, like this....
+	        int resourceID = resources.getIdentifier(imageName, "drawable", getPackageName());
+	        
+	        resourceIDS[i] = resourceID;
+
+	        // Grab your ImageView and use its handy setImageResource method...
+	        //SelectedImage = (ImageView) findViewById(R.id.imgQuestion);
+	        //SelectedImage.setImageResource(resourceID);	
+		}
+		
+		int currentResourceID = resourceIDS[currentQuestionIndex];
+		SelectedImage = (ImageView) findViewById(R.id.imgQuestion);
+	    SelectedImage.setImageResource(currentResourceID);	
+	}
+
+
+	
+	public class ClickHandler implements OnClickListener
+	{
+
+		@Override
+		public void onClick(View v) 
+		{
+			RadioButton chosenButton = (RadioButton) findViewById(answerGroup.getCheckedRadioButtonId());
+			String chosenAnswer = chosenButton.getText().toString();
+			
+			String rightAnswer = Answers[currentQuestionIndex];
+			
+			if (checked == false)
+			{
+				if (chosenAnswer.equals(rightAnswer))
+				{
+					Toast.makeText(Questions.this, chosenAnswer + " is correct", Toast.LENGTH_SHORT).show();
+					checked = true;
+					correctAnswer++;
+				}
+				else
+				{
+					Toast.makeText(Questions.this, chosenAnswer + " is incorrect", Toast.LENGTH_SHORT).show();
+					checked = true;
+				}
+			}
+			else
+			{
+				Toast.makeText(Questions.this, "You already had a go at this question, please click next to continue", Toast.LENGTH_SHORT).show();
+			}
+		}
+		
+	}
+	
+	public class NextHandler implements OnClickListener
+	{
+
+		@Override
+		public void onClick(View v) 
+		{
+			if (checked == true)
+			{
+				currentQuestionIndex++;	//have to increment this first or I will drop out of the array
+				
+				if (currentQuestionIndex  < QuestionImages.length)
+				{
+					// The Resource object will get the ID from R for you, like this....
+					int currentResourceID = resourceIDS[currentQuestionIndex];
+					SelectedImage.setImageResource(currentResourceID);
+					progressString = (currentQuestionIndex + 1) + "/11";
+				    progress.setText(progressString);
+				    checked = false;
+				}
+				else
+				{
+					Intent changeActivityIntent = new Intent(Questions.this, Results.class);
+					String passData = Integer.toString(correctAnswer);
+					changeActivityIntent.putExtra("score", passData);
+					startActivity(changeActivityIntent);
+					checked = false;
+				}
+			}
+			else
+			{
+				Toast.makeText(Questions.this, "Please check your answer before trying to continue", Toast.LENGTH_SHORT).show();
+			}
+							
+		}
+		
+	}
+	
+	public void shuffle()
+	{
+		for (int i = 0; i > 100; i++ )
+		{
+			int num1 = rand.nextInt(11);
+			int num2 = rand.nextInt(11);
+			String imageTemp = QuestionImages[num1];
+			String answerTemp = Answers[num1];
+			
+			QuestionImages[num1] = QuestionImages[num2];
+			Answers[num1] = Answers[num2];
+			
+			QuestionImages[num2] = imageTemp;
+			Answers[num2] = answerTemp;
+		}
+	}
+}

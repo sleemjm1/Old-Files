@@ -1,0 +1,21 @@
+package bit.sleemjm1.lastfm;
+
+import android.widget.ArrayAdapter;
+
+public class ArtistAdapter  
+{
+	String artistName;
+	int artistListeners;
+	
+	public ArtistAdapter(String artistName, int artistListeners)
+	{
+		this.artistName = artistName;
+		this.artistListeners = artistListeners;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return artistName + artistListeners;
+	}
+}
